@@ -1,0 +1,129 @@
+{% extends 'inventory/dashboard.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <header class="page-heading d-flex flex-wrap justify-content-between align-items-end gap-3 pb-4 mb-4">
+        <div>
+            <div class="eyebrow">Pets</div>
+            <h1 class="h2 mb-1">All Pets</h1>
+            <p class="text-secondary mb-0">Manage registered pets</p>
+        </div>
+        <a href="{% url 'pet_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Register Pet
+        </a>
+    </header>
+
+    <!-- Filters -->
+    <div class="panel p-3 mb-4">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small">Search</label>
+                <input type="text" name="search" class="form-control" placeholder="Pet name, breed, owner..." value="{{ search|default:'' }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Species</label>
+                <select name="species" class="form-select">
+                    <option value="">All Species</option>
+                    {% for value, label in species_choices %}
+                    <option value="{{ value }}" {% if selected_species == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Vaccination</label>
+                <select name="vaccination" class="form-select">
+                    <option value="">All</option>
+                    {% for value, label in vaccination_choices %}
+                    <option value="{{ value }}" {% if selected_vaccination == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Owner</label>
+                <select name="owner" class="form-select">
+                    <option value="">All Owners</option>
+                    {% for owner in owners %}
+                    <option value="{{ owner.pk }}" {% if selected_owner == owner.pk %}selected{% endif %}>{{ owner.full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                {% if search or selected_species or selected_vaccination or selected_owner %}
+                <a href="{% url 'pet_list' %}" class="btn btn-outline-secondary w-100"><i class="bi bi-x-circle me-1"></i> Clear Filters</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <div class="panel p-0">
+        <div class="table-wrap">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Pet</th>
+                        <th scope="col">Species</th>
+                        <th scope="col">Breed</th>
+                        <th scope="col">Gender</th>
+                        <th scope="col">Age</th>
+                        <th scope="col">Weight</th>
+                        <th scope="col">Owner</th>
+                        <th scope="col">Vaccination</th>
+                        <th scope="col">Registered</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pet in pets %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'pet_detail' pet.pk %}" class="text-decoration-none text-dark">
+                                <strong>{{ pet.pet_name }}</strong>
+                                <br><span class="small text-secondary">ID {{ pet.pet_id }}</span>
+                            </a>
+                        </td>
+                        <td>{{ pet.species }}</td>
+                        <td>{{ pet.breed }}</td>
+                        <td>
+                            <span class="badge text-bg-{% if pet.gender == 'Male' %}info{% else %}danger{% endif %}">{{ pet.gender }}</span>
+                        </td>
+                        <td>{{ pet.age }} yrs</td>
+                        <td>{{ pet.weight }} kg</td>
+                        <td>{{ pet.owner.full_name }}</td>
+                        <td>
+                            {% if pet.vaccination_status == 'Up to date' %}
+                                <span class="badge text-bg-success"><i class="bi bi-shield-check me-1"></i>Up to date</span>
+                            {% else %}
+                                <span class="badge text-bg-warning"><i class="bi bi-shield-x me-1"></i>Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-secondary">{{ pet.date_registered|date:"M d, Y" }}</td>
+                        <td class="text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary action-btn" href="{% url 'pet_update' pet.pk %}" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a class="btn btn-sm btn-outline-secondary action-btn" href="{% url 'pet_detail' pet.pk %}" title="View">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <form class="action-form d-inline" method="post" action="{% url 'pet_delete' pet.pk %}" onsubmit="return confirm('Delete {{ pet.pet_name|escapejs }}?');">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger action-btn" type="submit" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10" class="empty-state py-5">
+                            <i class="bi bi-heart"></i>
+                            <p class="mb-0 mt-2">No pets found.</p>
+                            <a href="{% url 'pet_create' %}" class="btn btn-primary mt-3">Register First Pet</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

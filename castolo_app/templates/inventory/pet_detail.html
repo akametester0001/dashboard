@@ -1,0 +1,162 @@
+{% extends 'inventory/dashboard.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <header class="page-heading d-flex flex-wrap justify-content-between align-items-end gap-3 pb-4 mb-4">
+        <div>
+            <div class="eyebrow">Pets</div>
+            <h1 class="h2 mb-1">{{ pet.pet_name }}</h1>
+            <p class="text-secondary mb-0">Pet ID: {{ pet.pet_id }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'visit_create' %}?pet={{ pet.pk }}" class="btn btn-outline-info">
+                <i class="bi bi-plus-circle me-1"></i> Record Visit
+            </a>
+            <a href="{% url 'pet_update' pet.pk %}" class="btn btn-outline-primary">
+                <i class="bi bi-pencil me-1"></i> Edit
+            </a>
+            <a href="{% url 'pet_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back
+            </a>
+        </div>
+    </header>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="panel p-4 text-center">
+                <div class="mb-3">
+                    {% if pet.species == 'Dog' %}
+                        <i class="bi bi-dog text-primary" style="font-size: 5rem;"></i>
+                    {% elif pet.species == 'Cat' %}
+                        <i class="bi bi-cat text-secondary" style="font-size: 5rem;"></i>
+                    {% elif pet.species == 'Bird' %}
+                        <i class="bi bi-bird text-warning" style="font-size: 5rem;"></i>
+                    {% elif pet.species == 'Rabbit' %}
+                        <i class="bi bi-rabbit text-info" style="font-size: 5rem;"></i>
+                    {% else %}
+                        <i class="bi bi-heart-pulse text-danger" style="font-size: 5rem;"></i>
+                    {% endif %}
+                </div>
+                <h3 class="mb-1">{{ pet.pet_name }}</h3>
+                <span class="badge text-bg-{% if pet.gender == 'Male' %}info{% else %}danger{% endif %} fs-6 px-3 py-2">
+                    {{ pet.gender }}
+                </span>
+                {% if pet.vaccination_status == 'Up to date' %}
+                    <span class="badge text-bg-success fs-6 px-3 py-2 ms-2">
+                        <i class="bi bi-shield-check me-1"></i>Up to date
+                    </span>
+                {% else %}
+                    <span class="badge text-bg-warning fs-6 px-3 py-2 ms-2">
+                        <i class="bi bi-shield-x me-1"></i>Pending
+                    </span>
+                {% endif %}
+            </div>
+
+            <div class="panel p-4 mt-4">
+                <h6 class="mb-3 border-bottom pb-2">Owner</h6>
+                <div class="text-center">
+                    <a href="{% url 'owner_detail' pet.owner.pk %}" class="text-decoration-none text-dark">
+                        <strong>{{ pet.owner.full_name }}</strong>
+                    </a>
+                    <br><span class="small text-secondary">{{ pet.owner.contact_number }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="panel p-4">
+                <h5 class="mb-3 border-bottom pb-2">Basic Information</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary small">Species</label>
+                        <div class="fw-medium">{{ pet.species }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary small">Breed</label>
+                        <div class="fw-medium">{{ pet.breed }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary small">Date of Birth</label>
+                        <div class="fw-medium">{{ pet.date_of_birth|date:"M d, Y" }} ({{ pet.age }} years old)</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary small">Weight</label>
+                        <div class="fw-medium">{{ pet.weight }} kg</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary small">Gender</label>
+                        <div class="fw-medium">
+                            <span class="badge text-bg-{% if pet.gender == 'Male' %}info{% else %}danger{% endif %}">{{ pet.gender }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary small">Vaccination</label>
+                        <div class="fw-medium">
+                            {% if pet.vaccination_status == 'Up to date' %}
+                                <span class="badge text-bg-success">Up to date</span>
+                            {% else %}
+                                <span class="badge text-bg-warning">Pending</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary small">Registered</label>
+                        <div class="fw-medium">{{ pet.date_registered|date:"M d, Y H:i" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel p-4 mt-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0 border-bottom pb-2">Visit History</h5>
+                    <a href="{% url 'visit_create' %}?pet={{ pet.pk }}" class="btn btn-sm btn-primary">Add Visit</a>
+                </div>
+                {% if visits %}
+                <div class="table-wrap">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Reason</th>
+                                <th>Diagnosis</th>
+                                <th>Treatment</th>
+                                <th>Next Checkup</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for visit in visits %}
+                            <tr>
+                                <td class="small">{{ visit.visit_date|date:"M d, Y" }}</td>
+                                <td>{{ visit.reason|truncatechars:50 }}</td>
+                                <td>{{ visit.diagnosis|truncatechars:50|default:"—" }}</td>
+                                <td>{{ visit.treatment|truncatechars:50|default:"—" }}</td>
+                                <td class="{% if visit.next_checkup_date and visit.next_checkup_date < today %}text-danger fw-bold{% endif %}">
+                                    {% if visit.next_checkup_date %}
+                                        {{ visit.next_checkup_date|date:"M d, Y" }}
+                                    {% else %}
+                                        <span class="text-secondary">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-nowrap">
+                                    <a class="btn btn-sm btn-outline-primary action-btn" href="{% url 'visit_detail' visit.pk %}" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state py-4">
+                    <i class="bi bi-calendar-check"></i>
+                    <p class="mb-0 mt-2">No visits recorded for this pet.</p>
+                    <a href="{% url 'visit_create' %}?pet={{ pet.pk }}" class="btn btn-primary mt-3">Record First Visit</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

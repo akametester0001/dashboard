@@ -1,0 +1,112 @@
+{% extends 'pawtrack/dashboard.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <header class="page-heading d-flex flex-wrap justify-content-between align-items-end gap-3 pb-4 mb-4">
+        <div>
+            <div class="eyebrow">Pets</div>
+            <h1 class="h2 mb-1">{{ title }}</h1>
+            <p class="text-secondary mb-0">Fill in the pet details below</p>
+        </div>
+        <a href="{% url 'pet_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </header>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="panel p-4 p-md-5">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.pet_name.id_for_label }}" class="form-label">Pet Name <span class="text-danger">*</span></label>
+                            {{ form.pet_name }}
+                            {% if form.pet_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.pet_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.species.id_for_label }}" class="form-label">Species <span class="text-danger">*</span></label>
+                            {{ form.species }}
+                            {% if form.species.errors %}
+                                <div class="text-danger small mt-1">{{ form.species.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.breed.id_for_label }}" class="form-label">Breed <span class="text-danger">*</span></label>
+                            {{ form.breed }}
+                            {% if form.breed.errors %}
+                                <div class="text-danger small mt-1">{{ form.breed.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.gender.id_for_label }}" class="form-label">Gender <span class="text-danger">*</span></label>
+                            {{ form.gender }}
+                            {% if form.gender.errors %}
+                                <div class="text-danger small mt-1">{{ form.gender.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                            {{ form.date_of_birth }}
+                            {% if form.date_of_birth.errors %}
+                                <div class="text-danger small mt-1">{{ form.date_of_birth.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.weight.id_for_label }}" class="form-label">Weight (kg) <span class="text-danger">*</span></label>
+                            {{ form.weight }}
+                            {% if form.weight.errors %}
+                                <div class="text-danger small mt-1">{{ form.weight.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-12">
+                            <label for="{{ form.owner.id_for_label }}" class="form-label">Owner <span class="text-danger">*</span></label>
+                            {{ form.owner }}
+                            {% if form.owner.errors %}
+                                <div class="text-danger small mt-1">{{ form.owner.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                <a href="{% url 'owner_create' %}" target="_blank" class="text-decoration-none">
+                                    <i class="bi bi-plus-circle me-1"></i> Register new owner
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.vaccination_status.id_for_label }}" class="form-label">Vaccination Status <span class="text-danger">*</span></label>
+                            {{ form.vaccination_status }}
+                            {% if form.vaccination_status.errors %}
+                                <div class="text-danger small mt-1">{{ form.vaccination_status.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4 pt-3 border-top">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i> {% if editing_pet %}Save Changes{% else %}Register Pet{% endif %}
+                        </button>
+                        <a href="{% url 'pet_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'pawtrack/dashboard.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <header class="page-heading d-flex flex-wrap justify-content-between align-items-end gap-3 pb-4 mb-4">
+        <div>
+            <div class="eyebrow">Owners</div>
+            <h1 class="h2 mb-1">{{ owner.full_name }}</h1>
+            <p class="text-secondary mb-0">Owner ID: {{ owner.owner_id }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'owner_update' owner.pk %}" class="btn btn-outline-primary">
+                <i class="bi bi-pencil me-1"></i> Edit
+            </a>
+            <a href="{% url 'owner_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back
+            </a>
+        </div>
+    </header>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="panel p-4 text-center">
+                <div class="mb-3">
+                    <i class="bi bi-person-circle text-warning" style="font-size: 5rem;"></i>
+                </div>
+                <h3 class="mb-1">{{ owner.full_name }}</h3>
+                <span class="badge text-bg-info fs-6 px-3 py-2">{{ owner.pet_count }} Pet{{ owner.pet_count|pluralize }}</span>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="panel p-4">
+                <h5 class="mb-3 border-bottom pb-2">Contact Information</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary small">Contact Number</label>
+                        <div class="fw-medium">{{ owner.contact_number }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-secondary small">Email</label>
+                        <div class="fw-medium">{{ owner.email|default:"—" }}</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-secondary small">Address</label>
+                        <div class="fw-medium">{{ owner.address|default:"—" }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel p-4 mt-4">
+                <h5 class="mb-3 border-bottom pb-2">Registered Pets ({{ owner.pet_count }})</h5>
+                {% if pets %}
+                <div class="table-wrap">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Pet</th>
+                                <th>Species</th>
+                                <th>Breed</th>
+                                <th>Age</th>
+                                <th>Vaccination</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pet in pets %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'pet_detail' pet.pk %}" class="text-decoration-none text-dark">
+                                        <strong>{{ pet.pet_name }}</strong>
+                                        <br><span class="small text-secondary">ID {{ pet.pet_id }}</span>
+                                    </a>
+                                </td>
+                                <td>{{ pet.species }}</td>
+                                <td>{{ pet.breed }}</td>
+                                <td>{{ pet.age }} yrs</td>
+                                <td>
+                                    {% if pet.vaccination_status == 'Up to date' %}
+                                        <span class="badge text-bg-success">Up to date</span>
+                                    {% else %}
+                                        <span class="badge text-bg-warning">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-nowrap">
+                                    <a class="btn btn-sm btn-outline-primary action-btn" href="{% url 'pet_detail' pet.pk %}" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-secondary action-btn" href="{% url 'visit_create' %}?pet={{ pet.pk }}" title="Record Visit">
+                                        <i class="bi bi-plus-circle"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-heart text-secondary" style="font-size: 2rem;"></i>
+                    <p class="text-secondary mt-2 mb-3">No pets registered for this owner yet.</p>
+                    <a href="{% url 'pet_create' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-1"></i> Register Pet for {{ owner.full_name }}
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

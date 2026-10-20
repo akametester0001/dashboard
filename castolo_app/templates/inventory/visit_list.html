@@ -1,0 +1,115 @@
+{% extends 'inventory/dashboard.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <header class="page-heading d-flex flex-wrap justify-content-between align-items-end gap-3 pb-4 mb-4">
+        <div>
+            <div class="eyebrow">Visits</div>
+            <h1 class="h2 mb-1">All Visits</h1>
+            <p class="text-secondary mb-0">Manage checkup records</p>
+        </div>
+        <a href="{% url 'visit_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Record Visit
+        </a>
+    </header>
+
+    <!-- Filters -->
+    <div class="panel p-3 mb-4">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small">Search</label>
+                <input type="text" name="search" class="form-control" placeholder="Reason, diagnosis, pet name..." value="{{ search|default:'' }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Pet</label>
+                <select name="pet" class="form-select">
+                    <option value="">All Pets</option>
+                    {% for pet in pets %}
+                    <option value="{{ pet.pk }}" {% if selected_pet == pet.pk %}selected{% endif %}>{{ pet.pet_name }} ({{ pet.owner.full_name }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Date From</label>
+                <input type="date" name="date_from" class="form-control" value="{{ date_from|default:'' }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Date To</label>
+                <input type="date" name="date_to" class="form-control" value="{{ date_to|default:'' }}">
+            </div>
+            <div class="col-md-3">
+                {% if search or selected_pet or date_from or date_to %}
+                <a href="{% url 'visit_list' %}" class="btn btn-outline-secondary w-100"><i class="bi bi-x-circle me-1"></i> Clear Filters</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <div class="panel p-0">
+        <div class="table-wrap">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Visit</th>
+                        <th scope="col">Pet</th>
+                        <th scope="col">Owner</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Reason</th>
+                        <th scope="col">Diagnosis</th>
+                        <th scope="col">Next Checkup</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visit in visits %}
+                    <tr>
+                        <td>
+                            <strong>#{{ visit.visit_id }}</strong>
+                        </td>
+                        <td>
+                            <a href="{% url 'pet_detail' visit.pet.pk %}" class="text-decoration-none text-dark">
+                                <strong>{{ visit.pet.pet_name }}</strong>
+                                <br><span class="small text-secondary">{{ visit.pet.species }}</span>
+                            </a>
+                        </td>
+                        <td>{{ visit.pet.owner.full_name }}</td>
+                        <td class="small">{{ visit.visit_date|date:"M d, Y" }}</td>
+                        <td>{{ visit.reason|truncatechars:40 }}</td>
+                        <td>{{ visit.diagnosis|truncatechars:40|default:"—" }}</td>
+                        <td class="{% if visit.next_checkup_date and visit.next_checkup_date < today %}text-danger fw-bold{% endif %}">
+                            {% if visit.next_checkup_date %}
+                                {{ visit.next_checkup_date|date:"M d, Y" }}
+                            {% else %}
+                                <span class="text-secondary">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary action-btn" href="{% url 'visit_detail' visit.pk %}" title="View">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a class="btn btn-sm btn-outline-secondary action-btn" href="{% url 'visit_update' visit.pk %}" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form class="action-form d-inline" method="post" action="{% url 'visit_delete' visit.pk %}" onsubmit="return confirm('Delete visit #{{ visit.visit_id }}?');">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger action-btn" type="submit" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="empty-state py-5">
+                            <i class="bi bi-calendar-check"></i>
+                            <p class="mb-0 mt-2">No visits recorded yet.</p>
+                            <a href="{% url 'visit_create' %}" class="btn btn-primary mt-3">Record First Visit</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

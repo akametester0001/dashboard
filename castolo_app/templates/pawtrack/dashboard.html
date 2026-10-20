@@ -1,0 +1,684 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawTrack — Pet Management System</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+    <style> 
+        :root {
+            --ink: #1e2a2b;
+            --muted: #6b7c7c;
+            --line: #dce4e1;
+            --paper: #ffffff;
+            --ground: #f0f5f2;
+            --teal: #166b61;
+            --teal-dark: #0f544b;
+            --teal-light: #e8f4f2;
+            --coral: #c05240;
+            --coral-light: #fdf2f1;
+            --amber: #b87900;
+            --amber-light: #fff9e6;
+            --success: #1e7a3a;
+            --success-light: #e8f7ed;
+            --paw-orange: #e87722;
+            --paw-orange-light: #fff4e6;
+        }
+
+        body { 
+            background: var(--ground); 
+            color: var(--ink); 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .topbar { 
+            background: var(--ink); 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        
+        .navbar-brand { 
+            color: white !important; 
+            font-weight: 700; 
+            font-size: 1.25rem;
+        }
+        .navbar-brand .dot { color: var(--paw-orange); }
+        
+        .page-heading { 
+            border-bottom: 1px solid var(--line); 
+        }
+        
+        .eyebrow { 
+            color: var(--paw-orange); 
+            font-size: .7rem; 
+            font-weight: 700; 
+            letter-spacing: .1em; 
+            text-transform: uppercase; 
+        }
+        
+        .panel { 
+            background: var(--paper); 
+            border: 1px solid var(--line); 
+            border-radius: 10px; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+        
+        .panel-title { 
+            font-size: 1rem; 
+            font-weight: 600; 
+        }
+        
+        .form-label { 
+            font-size: .8125rem; 
+            font-weight: 500; 
+        }
+        
+        .form-control, .form-select { 
+            border-color: var(--line); 
+            border-radius: 6px;
+            font-size: .875rem;
+        }
+        
+        .form-control:focus, .form-select:focus { 
+            border-color: var(--paw-orange); 
+            box-shadow: 0 0 0 3px var(--paw-orange-light); 
+        }
+        
+        .btn-primary { 
+            background: var(--paw-orange); 
+            border-color: var(--paw-orange); 
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .btn-primary:hover { 
+            background: #d1661e; 
+            border-color: #d1661e; 
+        }
+        
+        .btn-outline-primary { 
+            color: var(--paw-orange); 
+            border-color: var(--paw-orange); 
+            border-radius: 6px;
+        }
+        
+        .btn-outline-primary:hover { 
+            background: var(--paw-orange); 
+            color: white; 
+        }
+        
+        .btn-outline-secondary { 
+            color: var(--ink); 
+            border-color: var(--line); 
+            border-radius: 6px;
+        }
+        
+        .btn-outline-danger { 
+            color: var(--coral); 
+            border-color: var(--coral); 
+            border-radius: 6px;
+        }
+        
+        .btn-outline-danger:hover { 
+            background: var(--coral); 
+            color: white; 
+        }
+        
+        .table thead th { 
+            color: var(--muted); 
+            font-size: .7rem; 
+            text-transform: uppercase; 
+            letter-spacing: .05em;
+            white-space: nowrap; 
+            font-weight: 600;
+            border-bottom: 2px solid var(--line);
+        }
+        
+        .table td { 
+            vertical-align: middle; 
+            font-size: .875rem;
+            border-color: var(--line);
+        }
+        
+        .table tbody tr:hover { 
+            background: var(--ground); 
+        }
+        
+        .table-wrap { 
+            overflow-x: auto; 
+        }
+        
+        .badge { 
+            font-size: .7rem; 
+            font-weight: 500; 
+            padding: .35em .65em;
+            border-radius: 4px;
+        }
+        
+        .text-bg-success { background: var(--success-light); color: var(--success); }
+        .text-bg-warning { background: var(--amber-light); color: var(--amber); }
+        .text-bg-danger { background: var(--coral-light); color: var(--coral); }
+        .text-bg-info { background: #e8f4fd; color: #1a73b8; }
+        .text-bg-secondary { background: #f1f3f4; color: var(--muted); }
+        
+        .stat-card {
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 1.25rem;
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .stat-icon.teal { background: var(--teal-light); color: var(--teal); }
+        .stat-icon.orange { background: var(--paw-orange-light); color: var(--paw-orange); }
+        .stat-icon.amber { background: var(--amber-light); color: var(--amber); }
+        .stat-icon.success { background: var(--success-light); color: var(--success); }
+        .stat-icon.info { background: #e8f4fd; color: #1a73b8; }
+        
+        .stat-value { font-size: 1.75rem; font-weight: 700; line-height: 1.2; }
+        .stat-label { font-size: .8125rem; color: var(--muted); font-weight: 500; }
+        .stat-trend { font-size: .75rem; font-weight: 500; }
+        
+        .nav-pills .nav-link {
+            color: var(--ink);
+            font-weight: 500;
+            font-size: .875rem;
+            border-radius: 6px;
+            padding: .5rem 1rem;
+        }
+        
+        .nav-pills .nav-link.active {
+            background: var(--paw-orange);
+            color: white;
+        }
+        
+        .nav-pills .nav-link:hover:not(.active) {
+            background: var(--ground);
+        }
+        
+        .sidebar {
+            background: var(--paper);
+            border-right: 1px solid var(--line);
+            min-height: 100vh;
+        }
+        
+        .sidebar .nav-link {
+            color: var(--ink);
+            font-weight: 500;
+            font-size: .875rem;
+            padding: .625rem 1rem;
+            border-radius: 8px;
+            margin: .25rem .75rem;
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+        
+        .sidebar .nav-link:hover {
+            background: var(--ground);
+        }
+        
+        .sidebar .nav-link.active {
+            background: var(--paw-orange-light);
+            color: var(--paw-orange);
+        }
+        
+        .sidebar .nav-link i { width: 1.25rem; text-align: center; }
+        
+        .sidebar .nav-link .badge { font-size: .65rem; }
+        
+        .empty-state { 
+            color: var(--muted); 
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+        
+        .empty-state i { font-size: 3rem; opacity: .4; margin-bottom: 1rem; }
+        
+        .action-btn { 
+            width: 32px; 
+            height: 32px; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 6px;
+        }
+        
+        @media (max-width: 991.98px) {
+            .sidebar { display: none; }
+            .sidebar.show { display: block; position: fixed; top: 0; left: 0; bottom: 0; z-index: 1050; width: 280px; }
+            .sidebar-backdrop { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 1040; }
+            .sidebar-backdrop.show { display: block; }
+        }
+        
+        .chart-container { position: relative; height: 250px; }
+        
+        .dropdown-menu { border: 1px solid var(--line); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .dropdown-item { font-size: .875rem; padding: .5rem 1rem; }
+        .dropdown-item:hover { background: var(--ground); }
+        
+        .progress { height: 6px; border-radius: 3px; }
+        
+        .table .btn { padding: .25rem .5rem; font-size: .75rem; }
+        
+        /* Species icons */
+        .species-icon {
+            font-size: 2.5rem;
+        }
+        .species-dog { color: #8b5e3c; }
+        .species-cat { color: #6b7c7c; }
+        .species-bird { color: #b87900; }
+        .species-rabbit { color: #1a73b8; }
+        .species-reptile { color: #1e7a3a; }
+        .species-rat { color: #8b5e3c; }
+        .species-other { color: #c05240; }
+    </style>
+</head>
+
+<body>
+
+    <div class="row g-0">
+    <!-- Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar d-none d-lg-block col-lg-2 p-0" id="sidebar">
+        <div class="p-3 border-bottom">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'dashboard' %}">
+                <i class="bi bi-paw-fill text-warning fs-3"></i>
+                <span>PawTrack</span>
+            </a>
+        </div>
+        <nav class="nav flex-column p-2">
+            <a class="nav-link {% if request.path == '/' or request.path == '/dashboard/' %}active{% endif %}" 
+               href="{% url 'dashboard' %}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            
+            <hr class="mx-2 my-2">
+            
+            <div class="px-3 py-1 text-uppercase text-secondary small fw-bold">Pets</div>
+            <a class="nav-link {% if 'pet' in request.path and 'visit' not in request.path %}active{% endif %}" 
+               href="{% url 'pet_list' %}">
+                <i class="bi bi-heart"></i> All Pets
+                {% if total_pets %}<span class="badge text-bg-secondary ms-auto">{{ total_pets }}</span>{% endif %}
+            </a>
+            <a class="nav-link" href="{% url 'pet_create' %}">
+                <i class="bi bi-plus-circle"></i> Register Pet
+            </a>
+            
+            <hr class="mx-2 my-2">
+            
+            <div class="px-3 py-1 text-uppercase text-secondary small fw-bold">Owners</div>
+            <a class="nav-link {% if 'owner' in request.path %}active{% endif %}" 
+               href="{% url 'owner_list' %}">
+                <i class="bi bi-people"></i> All Owners
+                {% if total_owners %}<span class="badge text-bg-secondary ms-auto">{{ total_owners }}</span>{% endif %}
+            </a>
+            <a class="nav-link" href="{% url 'owner_create' %}">
+                <i class="bi bi-plus-circle"></i> Register Owner
+            </a>
+            
+            <hr class="mx-2 my-2">
+            
+            <div class="px-3 py-1 text-uppercase text-secondary small fw-bold">Visits</div>
+            <a class="nav-link {% if 'visit' in request.path %}active{% endif %}" 
+               href="{% url 'visit_list' %}">
+                <i class="bi bi-calendar-check"></i> All Visits
+                {% if total_visits %}<span class="badge text-bg-secondary ms-auto">{{ total_visits }}</span>{% endif %}
+            </a>
+            <a class="nav-link" href="{% url 'visit_create' %}">
+                <i class="bi bi-plus-circle"></i> Record Visit
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="col-lg-10 ms-auto px-4 pb-4 pt-3 px-lg-5 pb-lg-5 pt-lg-4">
+        <!-- Mobile Sidebar Toggle -->
+        <button class="btn btn-outline-secondary d-lg-none mb-3" onclick="toggleSidebar()" aria-label="Toggle menu">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <!-- Top Bar -->
+        <nav class="navbar topbar px-0 mb-4 d-lg-none">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'dashboard' %}">
+                    <i class="bi bi-paw-fill text-warning"></i> PawTrack
+                </a>
+            </div>
+        </nav>
+
+        {% if messages %}
+        <div class="container-fluid mb-4" id="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}
+        <!-- Dashboard Content -->
+        <div class="container-fluid">
+            <header class="page-heading d-flex flex-wrap justify-content-between align-items-end gap-3 pb-4 mb-4">
+                <div>
+                    <div class="eyebrow">Overview</div>
+                    <h1 class="h2 mb-1">PawTrack Dashboard</h1>
+                    <p class="text-secondary mb-0">Pet Management System for veterinary clinics and shelters</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'pet_create' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-lg me-1"></i> Register Pet
+                    </a>
+                    <a href="{% url 'owner_create' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-1"></i> Register Owner
+                    </a>
+                </div>
+            </header>
+
+            <!-- Stat Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-start justify-content-between">
+                            <div>
+                                <div class="stat-label">Total Pets</div>
+                                <div class="stat-value">{{ total_pets }}</div>
+                            </div>
+                            <div class="stat-icon orange"><i class="bi bi-heart"></i></div>
+                        </div>
+                        <div class="mt-2 d-flex gap-3 text-secondary small">
+                            <span><i class="bi bi-shield-check text-success me-1"></i>{{ vaccinated_pets }} Vaccinated</span>
+                            <span><i class="bi bi-shield-x text-warning me-1"></i>{{ pending_vaccination }} Pending</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-start justify-content-between">
+                            <div>
+                                <div class="stat-label">Total Owners</div>
+                                <div class="stat-value">{{ total_owners }}</div>
+                            </div>
+                            <div class="stat-icon teal"><i class="bi bi-people"></i></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-start justify-content-between">
+                            <div>
+                                <div class="stat-label">Total Visits</div>
+                                <div class="stat-value">{{ total_visits }}</div>
+                            </div>
+                            <div class="stat-icon info"><i class="bi bi-calendar-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-start justify-content-between">
+                            <div>
+                                <div class="stat-label">Vaccination Rate</div>
+                                <div class="stat-value">
+                                    {{ vaccination_rate }}%
+                                </div>
+                            </div>
+                            <div class="stat-icon success"><i class="bi bi-shield-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row g-4 mb-4">
+                <div class="col-lg-7">
+                    <div class="panel p-4">
+                        <h2 class="panel-title mb-3">Pets by Species</h2>
+                        <div class="chart-container">
+                            <canvas id="speciesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-5">
+                    <div class="panel p-4">
+                        <h2 class="panel-title mb-3">Vaccination Status</h2>
+                        <div class="chart-container">
+                            <canvas id="vaccinationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="panel p-0">
+                        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                            <h2 class="panel-title mb-0">Recent Pets</h2>
+                            <a href="{% url 'pet_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Pet</th>
+                                        <th>Species</th>
+                                        <th>Owner</th>
+                                        <th>Vaccination</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for pet in recent_pets %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ pet.pet_name }}</strong>
+                                            <br><span class="small text-secondary">ID {{ pet.pet_id }} • Age {{ pet.age }}</span>
+                                        </td>
+                                        <td>{{ pet.species }}</td>
+                                        <td>{{ pet.owner.full_name }}</td>
+                                        <td>
+                                            {% if pet.vaccination_status == 'Up to date' %}
+                                                <span class="badge text-bg-success">Up to date</span>
+                                            {% else %}
+                                                <span class="badge text-bg-warning">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="empty-state py-4">
+                                            <i class="bi bi-heart"></i>
+                                            <p class="mb-0 mt-2">No pets registered yet</p>
+                                            <a href="{% url 'pet_create' %}" class="btn btn-sm btn-primary mt-2">Add First Pet</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="panel p-0">
+                        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                            <h2 class="panel-title mb-0">Recent Visits</h2>
+                            <a href="{% url 'visit_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Pet</th>
+                                        <th>Date</th>
+                                        <th>Reason</th>
+                                        <th>Next Checkup</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for visit in recent_visits %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ visit.pet.pet_name }}</strong>
+                                            <br><span class="small text-secondary">{{ visit.pet.owner.full_name }}</span>
+                                        </td>
+                                        <td>{{ visit.visit_date|date:"M d, Y" }}</td>
+                                        <td>{{ visit.reason|truncatewords:8 }}</td>
+                                        <td>
+                                            {% if visit.next_checkup_date %}
+                                                {{ visit.next_checkup_date|date:"M d, Y" }}
+                                            {% else %}
+                                                <span class="text-secondary">—</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="empty-state py-4">
+                                            <i class="bi bi-calendar-check"></i>
+                                            <p class="mb-0 mt-2">No visits recorded yet</p>
+                                            <a href="{% url 'visit_create' %}" class="btn btn-sm btn-primary mt-2">Record First Visit</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Species Chart
+            const speciesCtx = document.getElementById('speciesChart');
+            if (speciesCtx) {
+                const speciesData = {{ species_data|safe }};
+                new Chart(speciesCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(speciesData),
+                        datasets: [{
+                            data: Object.values(speciesData),
+                            backgroundColor: [
+                                '#e87722', '#f08a3d', '#f8a05e', '#ffb87f', '#ffcea1', '#ffe5c3',
+                                '#1e7a3a', '#2db34c', '#b87900', '#c05240'
+                            ],
+                            borderWidth: 0,
+                            borderRadius: 4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    font: { size: 11, family: 'Inter' },
+                                    padding: 16,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle'
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const total = context.dataset.data.reduce((a,b) => a+b, 0);
+                                        const pct = ((context.raw / total) * 100).toFixed(1);
+                                        return `${context.label}: ${context.raw} (${pct}%)`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            }
+
+            // Vaccination Chart
+            const vaccCtx = document.getElementById('vaccinationChart');
+            if (vaccCtx) {
+                const vaccinated = {{ vaccinated_pets }};
+                const pending = {{ pending_vaccination }};
+                new Chart(vaccCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Vaccinated', 'Pending'],
+                        datasets: [{
+                            label: 'Pets',
+                            data: [vaccinated, pending],
+                            backgroundColor: ['#1e7a3a', '#b87900'],
+                            borderRadius: 6,
+                            borderSkipped: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } }, grid: { color: '#edf2f1' } },
+                            x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+                        }
+                    }
+                });
+            }
+
+            // Sidebar toggle for mobile
+            function toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const backdrop = document.getElementById('sidebarBackdrop');
+                sidebar.classList.toggle('show');
+                backdrop.classList.toggle('show');
+            }
+
+            // Auto-hide messages after 5 seconds
+            setTimeout(() => {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        </script>
+        {% endblock %}
+    </main>
+    </div>
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

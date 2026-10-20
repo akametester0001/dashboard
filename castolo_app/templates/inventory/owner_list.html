@@ -1,0 +1,75 @@
+{% extends 'inventory/dashboard.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <header class="page-heading d-flex flex-wrap justify-content-between align-items-end gap-3 pb-4 mb-4">
+        <div>
+            <div class="eyebrow">Owners</div>
+            <h1 class="h2 mb-1">All Owners</h1>
+            <p class="text-secondary mb-0">Manage pet owners</p>
+        </div>
+        <a href="{% url 'owner_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Add Owner
+        </a>
+    </header>
+
+    <div class="panel p-0">
+        <div class="table-wrap">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Owner</th>
+                        <th scope="col">Contact</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Address</th>
+                        <th scope="col">Pets</th>
+                        <th scope="col">Registered</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for owner in owners %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'owner_detail' owner.pk %}" class="text-decoration-none text-dark">
+                                <strong>{{ owner.full_name }}</strong>
+                                <br><span class="small text-secondary">ID {{ owner.owner_id }}</span>
+                            </a>
+                        </td>
+                        <td>{{ owner.contact_number }}</td>
+                        <td>{{ owner.email|default:"—" }}</td>
+                        <td class="text-truncate" style="max-width: 200px;">{{ owner.address|default:"—" }}</td>
+                        <td>
+                            <span class="badge text-bg-info">{{ owner.pet_count }}</span>
+                        </td>
+                        <td class="small text-secondary">{{ owner.created_at|date:"M d, Y" }}</td>
+                        <td class="text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary action-btn" href="{% url 'owner_update' owner.pk %}" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a class="btn btn-sm btn-outline-secondary action-btn" href="{% url 'owner_detail' owner.pk %}" title="View">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <form class="action-form d-inline" method="post" action="{% url 'owner_delete' owner.pk %}" onsubmit="return confirm('Delete {{ owner.full_name|escapejs }}?');">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger action-btn" type="submit" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="empty-state py-5">
+                            <i class="bi bi-people"></i>
+                            <p class="mb-0 mt-2">No owners registered yet.</p>
+                            <a href="{% url 'owner_create' %}" class="btn btn-primary mt-3">Add First Owner</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

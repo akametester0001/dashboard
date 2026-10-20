@@ -1,0 +1,92 @@
+{% extends 'pawtrack/dashboard.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <header class="page-heading d-flex flex-wrap justify-content-between align-items-end gap-3 pb-4 mb-4">
+        <div>
+            <div class="eyebrow">Visits</div>
+            <h1 class="h2 mb-1">{{ title }}</h1>
+            <p class="text-secondary mb-0">Fill in the visit details below</p>
+        </div>
+        <a href="{% url 'visit_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </header>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="panel p-4 p-md-5">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.pet.id_for_label }}" class="form-label">Pet <span class="text-danger">*</span></label>
+                            {{ form.pet }}
+                            {% if form.pet.errors %}
+                                <div class="text-danger small mt-1">{{ form.pet.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.visit_date.id_for_label }}" class="form-label">Visit Date <span class="text-danger">*</span></label>
+                            {{ form.visit_date }}
+                            {% if form.visit_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.visit_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-12">
+                            <label for="{{ form.reason.id_for_label }}" class="form-label">Reason for Visit <span class="text-danger">*</span></label>
+                            {{ form.reason }}
+                            {% if form.reason.errors %}
+                                <div class="text-danger small mt-1">{{ form.reason.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-12">
+                            <label for="{{ form.diagnosis.id_for_label }}" class="form-label">Diagnosis</label>
+                            {{ form.diagnosis }}
+                            {% if form.diagnosis.errors %}
+                                <div class="text-danger small mt-1">{{ form.diagnosis.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-12">
+                            <label for="{{ form.treatment.id_for_label }}" class="form-label">Treatment Given</label>
+                            {{ form.treatment }}
+                            {% if form.treatment.errors %}
+                                <div class="text-danger small mt-1">{{ form.treatment.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.next_checkup_date.id_for_label }}" class="form-label">Next Checkup Date</label>
+                            {{ form.next_checkup_date }}
+                            {% if form.next_checkup_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.next_checkup_date.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Optional - leave blank if no follow-up needed</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4 pt-3 border-top">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i> {% if editing_visit %}Save Changes{% else %}Record Visit{% endif %}
+                        </button>
+                        <a href="{% url 'visit_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
